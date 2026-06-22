@@ -80,4 +80,14 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler(UserNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public Map<String, Object> handleUserNotFound(UserNotFoundException ex){
+        return Map.of(
+                "status", 404,
+                "error", "Not Found",
+                "message", ex.getMessage()
+        );
+    }
+
 }

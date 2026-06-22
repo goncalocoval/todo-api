@@ -25,6 +25,9 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private String role;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Todo> todos;
+
     public User() {}
 
     public User(String email, String password, String role){

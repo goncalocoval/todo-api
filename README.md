@@ -2,7 +2,7 @@
 
 > just another api that keeps your todos.
 
-A REST API built with Java and Spring Boot for managing todos with JWT authentication. Each user can only access and manage their own todos. Includes registration, login, BCrypt password hashing, and Swagger documentation with bearer auth support.
+A REST API built with Java and Spring Boot for managing todos with JWT authentication. Each user can only access and manage their own todos. Includes registration, login, BCrypt password hashing, role-based access control, and Swagger documentation with bearer auth support.
 
 ---
 
@@ -26,8 +26,11 @@ A REST API built with Java and Spring Boot for managing todos with JWT authentic
 - 🔐 JWT authentication — register, login, and receive a token
 - 🔒 BCrypt password hashing — passwords are never stored in plain text
 - 👤 User-scoped todos — each user only sees their own todos
+- 🛡️ Role-based access control — `ROLE_USER` and `ROLE_ADMIN`
+- 👑 Admin endpoints — list and delete users
+- 🌱 Admin user created automatically on first run
 - ✅ Toggle todo completed status with a single request
-- 🛡️ Input validation with meaningful error messages
+- 🗑️ Cascade delete — deleting a user removes all their todos
 - 🌐 Global error handling with clean JSON responses
 - 📖 Swagger UI with bearer auth support
 
@@ -66,7 +69,12 @@ Open `src/main/resources/application.properties` and fill in your PostgreSQL cre
 ./mvnw spring-boot:run
 ```
 
-The API will be available at `http://localhost:8080`.
+The API will be available at `http://localhost:8080`.  
+An admin user is created automatically on first run:
+
+| Email | Password |
+|---|---|
+| admin@example.com | admin123 |
 
 ---
 
@@ -190,13 +198,46 @@ Deletes a todo. Returns `204 No Content`.
 
 ---
 
+### Admin
+
+> Admin endpoints require a valid JWT token from a `ROLE_ADMIN` user.
+
+#### `GET /admin/users`
+
+Returns a list of all registered users.
+
+**Example response** `200 OK`
+```json
+[
+  {
+    "id": 1,
+    "email": "admin@example.com",
+    "role": "ROLE_ADMIN"
+  },
+  {
+    "id": 2,
+    "email": "user@example.com",
+    "role": "ROLE_USER"
+  }
+]
+```
+
+---
+
+#### `DELETE /admin/users/{id}`
+
+Deletes a user and all their todos. Returns `204 No Content`.
+
+---
+
 ### Error Responses
 
 | Status | Description |
 |---|---|
 | `400` | Missing or invalid request body |
 | `401` | Invalid credentials or missing token |
-| `404` | Todo not found |
+| `403` | Insufficient permissions |
+| `404` | Todo or user not found |
 | `409` | Email already in use |
 | `500` | Unexpected server error |
 
@@ -220,14 +261,17 @@ Click **Authorize** and enter your JWT token to test protected endpoints directl
 src/main/java/com/example/todoapi/
 │
 ├── TodoApiApplication.java
+├── DataSeeder.java
 │
 ├── controller/
 │   ├── AuthController.java
-│   └── TodoController.java
+│   ├── TodoController.java
+│   └── AdminController.java
 │
 ├── service/
 │   ├── AuthService.java
-│   └── TodoService.java
+│   ├── TodoService.java
+│   └── AdminService.java
 │
 ├── repository/
 │   ├── UserRepository.java
@@ -242,11 +286,13 @@ src/main/java/com/example/todoapi/
 │   ├── LoginRequest.java
 │   ├── LoginResponse.java
 │   ├── TodoRequest.java
-│   └── TodoResponse.java
+│   ├── TodoResponse.java
+│   └── UserResponse.java
 │
 ├── exception/
 │   ├── EmailAlreadyExistsException.java
 │   ├── TodoNotFoundException.java
+│   ├── UserNotFoundException.java
 │   └── GlobalExceptionHandler.java
 │
 ├── security/
