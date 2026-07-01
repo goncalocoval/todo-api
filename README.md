@@ -18,6 +18,7 @@ A REST API built with Java and Spring Boot for managing todos with JWT authentic
 - **BCrypt** — password hashing
 - **Bean Validation** — input validation
 - **SpringDoc OpenAPI** — Swagger UI
+- **JUnit 5 + Mockito** — unit and integration testing
 
 ---
 
@@ -33,6 +34,7 @@ A REST API built with Java and Spring Boot for managing todos with JWT authentic
 - 🗑️ Cascade delete — deleting a user removes all their todos
 - 🌐 Global error handling with clean JSON responses
 - 📖 Swagger UI with bearer auth support
+- 🧪 Unit and integration tests
 
 ---
 
@@ -255,54 +257,81 @@ Click **Authorize** and enter your JWT token to test protected endpoints directl
 
 ---
 
+## Tests
+
+Run all tests with:
+
+```bash
+./mvnw test
+```
+
+### Coverage
+
+| Class | Type | Tests |
+|---|---|---|
+| `TodoService` | Unit | getById, throw on not found, create, getAll, toggle, delete |
+| `AuthService` | Unit | register, throw on duplicate email, login |
+| `TodoController` | Integration | getAll, getById, 404 on not found, create, 400 on blank title |
+
+---
+
 ## Project Structure
 
 ```
-src/main/java/com/example/todoapi/
+src/
 │
-├── TodoApiApplication.java
-├── DataSeeder.java
+├── main/java/com/example/todoapi/
+│   ├── TodoApiApplication.java
+│   ├── DataSeeder.java
+│   │
+│   ├── controller/
+│   │   ├── AuthController.java
+│   │   ├── TodoController.java
+│   │   └── AdminController.java
+│   │
+│   ├── service/
+│   │   ├── AuthService.java
+│   │   ├── TodoService.java
+│   │   └── AdminService.java
+│   │
+│   ├── repository/
+│   │   ├── UserRepository.java
+│   │   └── TodoRepository.java
+│   │
+│   ├── model/
+│   │   ├── User.java
+│   │   └── Todo.java
+│   │
+│   ├── dto/
+│   │   ├── RegisterRequest.java
+│   │   ├── LoginRequest.java
+│   │   ├── LoginResponse.java
+│   │   ├── TodoRequest.java
+│   │   ├── TodoResponse.java
+│   │   └── UserResponse.java
+│   │
+│   ├── exception/
+│   │   ├── EmailAlreadyExistsException.java
+│   │   ├── TodoNotFoundException.java
+│   │   ├── UserNotFoundException.java
+│   │   └── GlobalExceptionHandler.java
+│   │
+│   ├── security/
+│   │   ├── JwtService.java
+│   │   └── JwtAuthFilter.java
+│   │
+│   └── config/
+│       ├── ApplicationConfig.java
+│       ├── SecurityConfig.java
+│       └── SwaggerConfig.java
 │
-├── controller/
-│   ├── AuthController.java
-│   ├── TodoController.java
-│   └── AdminController.java
-│
-├── service/
-│   ├── AuthService.java
-│   ├── TodoService.java
-│   └── AdminService.java
-│
-├── repository/
-│   ├── UserRepository.java
-│   └── TodoRepository.java
-│
-├── model/
-│   ├── User.java
-│   └── Todo.java
-│
-├── dto/
-│   ├── RegisterRequest.java
-│   ├── LoginRequest.java
-│   ├── LoginResponse.java
-│   ├── TodoRequest.java
-│   ├── TodoResponse.java
-│   └── UserResponse.java
-│
-├── exception/
-│   ├── EmailAlreadyExistsException.java
-│   ├── TodoNotFoundException.java
-│   ├── UserNotFoundException.java
-│   └── GlobalExceptionHandler.java
-│
-├── security/
-│   ├── JwtService.java
-│   └── JwtAuthFilter.java
-│
-└── config/
-    ├── ApplicationConfig.java
-    ├── SecurityConfig.java
-    └── SwaggerConfig.java
+└── test/java/com/example/todoapi/
+    ├── service/
+    │   ├── TodoServiceTest.java
+    │   └── AuthServiceTest.java
+    │
+    └── controller/
+        └── TodoControllerTest.java
 ```
 
 ---
